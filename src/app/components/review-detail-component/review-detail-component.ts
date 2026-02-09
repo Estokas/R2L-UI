@@ -48,7 +48,12 @@ export class ReviewDetailComponent implements OnInit {
     this.router.navigate(['/']);
   }
 
-  getStatusClass(status: string): string {
+  
+
+  getStatusClass(status: string | undefined | null): string {
+    if (!status) {
+      return 'status-unknown';
+    }
     return `status-${status.toLowerCase()}`;
   }
 }
