@@ -1,0 +1,115 @@
+<div class="container mt-4">
+  <div class="row mb-4">
+    <div class="col">
+      <h2><i class="bi bi-list-check"></i> Code Review Dashboard</h2>
+      <p class="text-muted">AI-powered code reviews from GitHub commits</p>
+    </div>
+    <div class="col-auto">
+      <button class="btn btn-primary" (click)="loadReviews()">
+        <i class="bi bi-arrow-clockwise"></i> Refresh
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="text-center my-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="mt-3">Loading reviews...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error" class="alert alert-danger" role="alert">
+    <i class="bi bi-exclamation-triangle"></i> {{ error }}
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!loading && !error && reviews.length === 0" class="text-center my-5">
+    <i class="bi bi-inbox" style="font-size: 4rem; color: #ccc;"></i>
+    <h4 class="mt-3">No reviews yet</h4>
+    <p class="text-muted">Push commits to your configured repository to trigger AI reviews</p>
+  </div>
+
+  <!-- Reviews List -->
+  <div *ngIf="!loading && !error && reviews.length > 0">
+    <div class="row row-cols-1 g-4">
+      <div class="col" *ngFor="let review of reviews">
+        <div class="card">
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-8">
+                <h5 class="card-title">
+                  <i class="bi bi-git"></i> {{ review.commitMessage }}
+                </h5>
+                <p class="card-text">
+                  <small class="text-muted">
+                    <i class="bi bi-person"></i> {{ review.author }} • 
+                    <i class="bi bi-calendar"></i> {{ formatDate(review.commitTimestamp) }} •
+                    <i class="bi bi-folder"></i> {{ review.repositoryName }}
+                  </small>
+                </p>
+                <p class="card-text">
+                  <code class="text-muted">{{ review.commitSha.substring(0, 8) }}</code>
+                </p>
+              </div>
+              <div class="col-md-4 text-end">
+                <span class="badge mb-2" [ngClass]="getStatusBadgeClass(review.status)">
+                  {{ review.status }}
+                </span>
+                <div *ngIf="review.status === ReviewStatus.COMPLETED">
+                  <h3 class="mb-0">{{ getTotalFindings(review) }}</h3>
+                  <small class="text-muted">Total Findings</small>
+                  <div *ngIf="getCriticalCount(review) > 0" class="mt-2">
+                    <span class="badge bg-danger">
+                      {{ getCriticalCount(review) }} Critical/High
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Findings Summary -->
+            <div *ngIf="review.status === ReviewStatus.COMPLETED && getTotalFindings(review) > 0" 
+                 class="mt-3">
+              <div class="row text-center">
+                <div class="col">
+                  <span class="badge bg-danger">{{ getCount(review, FindingType.BUGS) }}</span>
+                  <small class="d-block text-muted">Bugs</small>
+                </div>
+                <div class="col">
+                  <span class="badge bg-warning">{{ getCount(review, FindingType.SECURITY) }}</span>
+                  <small class="d-block text-muted">Security</small>
+                </div>
+                <div class="col">
+                  <span class="badge bg-info">{{ getCount(review, FindingType.PERFORMANCE) }}</span>
+                  <small class="d-block text-muted">Performance</small>
+                </div>
+                <div class="col">
+                  <span class="badge bg-secondary">{{ getCount(review, FindingType.STYLE) }}</span>
+                  <small class="d-block text-muted">Style</small>
+                </div>
+                <div class="col">
+                  <span class="badge bg-primary">{{ getCount(review, FindingType.REFACTOR) }}</span>
+                  <small class="d-block text-muted">Refactor</small>
+                </div>
+              </div>
+            </div>
+
+            <!-- Error Message -->
+            <div *ngIf="review.status === ReviewStatus.FAILED" class="alert alert-danger mt-3">
+              <i class="bi bi-exclamation-circle"></i> {{ review.errorMessage }}
+            </div>
+
+            <!-- View Details Button -->
+            <div class="mt-3">
+              <a [routerLink]="['/review', review.commitSha]" class="btn btn-outline-primary">
+                <i class="bi bi-eye"></i> View Details
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
