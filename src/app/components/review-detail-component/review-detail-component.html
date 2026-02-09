@@ -13,13 +13,13 @@
 
   <div class="review-detail" *ngIf="review && !loading && !error">
     <header class="review-header">
-      <div class="header-content">
-        <h1>{{ review.repositoryName }}</h1>
-        <p class="commit-message">{{ review.commitMessage }}</p>
-      </div>
-      <span class="status-badge" [ngClass]="getStatusClass(review.status)">
-        {{ review.status }}
-      </span>
+        <div class="header-content">
+            <h1>{{ review.repositoryName }}</h1>
+            <p class="commit-message">{{ review.commitMessage }}</p>
+        </div>
+        <div [ngClass]="reviewStatusClass">
+            {{ review.status }}
+        </div>
     </header>
 
     <div class="review-meta">
