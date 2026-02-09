@@ -1,9 +1,16 @@
-import { Routes } from '@angular/router';
+import { NgModule } from '@angular/core';
+import { RouterModule, Routes } from '@angular/router';
+import { ReviewListComponent } from './components/review-list/review-list';
 import { ReviewDetailComponent } from './components/review-detail-component/review-detail-component';
-import { DashboardComponent } from './components/dashboard/dashboard';
 
 export const routes: Routes = [
-  { path: '', component: DashboardComponent },
+  { path: '', component: ReviewListComponent },
   { path: 'review/:commitSha', component: ReviewDetailComponent },
   { path: '**', redirectTo: '' }
 ];
+
+@NgModule({
+  imports: [RouterModule.forRoot(routes)],
+  exports: [RouterModule]
+})
+export class AppRoutingModule { }
