@@ -49,6 +49,6 @@ export class ReviewDetailComponent implements OnInit {
   }
 
   getStatusClass(status: string): string {
-    return `status-${status.toLowerCase()}`;
+    return `status-${status.toLowerCase()}
   }
 }
