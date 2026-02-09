@@ -1,0 +1,67 @@
+<div class="container">
+  <header class="header">
+    <h1>🤖 AI Code Review Dashboard</h1>
+    <p class="subtitle">Automated code analysis powered by AI</p>
+  </header>
+
+  <app-statistics [reviews]="reviews"></app-statistics>
+
+  <div class="loading" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>Loading reviews...</p>
+  </div>
+
+  <div class="error" *ngIf="error">
+    <p>❌ {{ error }}</p>
+    <button (click)="loadReviews()">Retry</button>
+  </div>
+
+  <div class="reviews-grid" *ngIf="!loading && !error">
+    <div class="review-card" *ngFor="let review of reviews" (click)="viewDetails(review.commitSha)">
+      <div class="card-header">
+        <div class="repo-info">
+          <h3>{{ review.repositoryName }}</h3>
+          <span class="commit-sha">{{ review.commitSha.substring(0, 7) }}</span>
+        </div>
+        <span class="status-badge" [ngClass]="getStatusClass(review.status)">
+          {{ review.status }}
+        </span>
+      </div>
+
+      <div class="card-body">
+        <p class="commit-message">{{ review.commitMessage }}</p>
+        <p class="author">👤 {{ review.author }}</p>
+        <p class="timestamp">🕐 {{ review.reviewTimestamp | date:'short' }}</p>
+      </div>
+
+      <div class="card-footer" *ngIf="review.status === 'COMPLETED'">
+        <div class="findings-summary">
+          <span class="finding-badge critical" *ngIf="getSeverityCount(review, 'CRITICAL') > 0">
+            🔴 {{ getSeverityCount(review, 'CRITICAL') }} Critical
+          </span>
+          <span class="finding-badge high" *ngIf="getSeverityCount(review, 'HIGH') > 0">
+            🟠 {{ getSeverityCount(review, 'HIGH') }} High
+          </span>
+          <span class="finding-badge medium" *ngIf="getSeverityCount(review, 'MEDIUM') > 0">
+            🟡 {{ getSeverityCount(review, 'MEDIUM') }} Medium
+          </span>
+          <span class="finding-badge low" *ngIf="getSeverityCount(review, 'LOW') > 0">
+            🟢 {{ getSeverityCount(review, 'LOW') }} Low
+          </span>
+          <span class="total-findings" *ngIf="getTotalFindings(review) === 0">
+            ✅ No issues found
+          </span>
+        </div>
+      </div>
+
+      <div class="card-footer error-footer" *ngIf="review.status === 'FAILED'">
+        <p class="error-message">❌ {{ review.errorMessage }}</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="empty-state" *ngIf="!loading && !error && reviews.length === 0">
+    <h2>📭 No Reviews Yet</h2>
+    <p>Push code to GitHub to trigger automatic reviews</p>
+  </div>
+</div>
