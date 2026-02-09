@@ -1,1 +1,31 @@
-<p>findings-card works!</p>
+<div class="finding-card" [ngClass]="getTypeClass(finding.type)">
+  <div class="finding-header">
+    <div class="finding-type">
+      <span class="type-icon">{{ getTypeIcon(finding.type) }}</span>
+      <span class="type-label">{{ finding.type }}</span>
+    </div>
+    <span class="finding-severity" [ngClass]="getSeverityClass(finding.severity)">
+      {{ finding.severity }}
+    </span>
+  </div>
+
+  <div class="finding-location">
+    <div class="file-info">
+      <span class="file-icon">📁</span>
+      <strong>{{ finding.fileName }}</strong>
+    </div>
+    <span class="line-number">Line {{ finding.lineNumber }}</span>
+  </div>
+
+  <div class="finding-body">
+    <div class="finding-description">
+      <h4>⚠️ Issue:</h4>
+      <p>{{ finding.description }}</p>
+    </div>
+
+    <div class="finding-suggestion" *ngIf="finding.suggestion">
+      <h4>💡 Suggestion:</h4>
+      <pre><code>{{ finding.suggestion }}</code></pre>
+    </div>
+  </div>
+</div>

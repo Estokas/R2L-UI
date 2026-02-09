@@ -1,116 +1,81 @@
-<div class="container mt-4">
-  <!-- Back Button -->
-  <div class="mb-3">
-    <a routerLink="/" class="btn btn-outline-secondary">
-      <i class="bi bi-arrow-left"></i> Back to Dashboard
-    </a>
+<div class="container">
+  <button class="back-button" (click)="goBack()">← Back to Reviews</button>
+
+  <div class="loading" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>Loading review details...</p>
   </div>
 
-  <!-- Loading State -->
-  <div *ngIf="loading" class="text-center my-5">
-    <div class="spinner-border text-primary" role="status">
-      <span class="visually-hidden">Loading...</span>
-    </div>
-    <p class="mt-3">Loading review details...</p>
+  <div class="error" *ngIf="error">
+    <p>❌ {{ error }}</p>
+    <button (click)="goBack()">Go Back</button>
   </div>
 
-  <!-- Error State -->
-  <div *ngIf="error" class="alert alert-danger" role="alert">
-    <i class="bi bi-exclamation-triangle"></i> {{ error }}
-  </div>
+  <div class="review-detail" *ngIf="review && !loading && !error">
+    <header class="review-header">
+      <div class="header-content">
+        <h1>{{ review.repositoryName }}</h1>
+        <p class="commit-message">{{ review.commitMessage }}</p>
+      </div>
+      <span class="status-badge" [ngClass]="getStatusClass(review.status)">
+        {{ review.status }}
+      </span>
+    </header>
 
-  <!-- Review Details -->
-  <div *ngIf="!loading && !error && review">
-    <!-- Header -->
-    <div class="card mb-4">
-      <div class="card-body">
-        <h3 class="card-title">
-          <i class="bi bi-git"></i> {{ review.commitMessage }}
-        </h3>
-        <p class="card-text">
-          <span class="badge bg-secondary">{{ review.commitSha.substring(0, 8) }}</span>
-        </p>
-        <div class="row mt-3">
-          <div class="col-md-6">
-            <p><i class="bi bi-person"></i> <strong>Author:</strong> {{ review.author }}</p>
-            <p><i class="bi bi-folder"></i> <strong>Repository:</strong> {{ review.repositoryName }}</p>
-          </div>
-          <div class="col-md-6">
-            <p><i class="bi bi-calendar"></i> <strong>Committed:</strong> {{ formatDate(review.commitTimestamp) }}</p>
-            <p><i class="bi bi-clock"></i> <strong>Reviewed:</strong> {{ formatDate(review.reviewTimestamp) }}</p>
-          </div>
+    <div class="review-meta">
+      <div class="meta-card">
+        <span class="meta-icon">🔖</span>
+        <div class="meta-content">
+          <span class="meta-label">Commit SHA</span>
+          <code>{{ review.commitSha.substring(0, 12) }}...</code>
         </div>
-        <div class="mt-3">
-          <h4>
-            <span class="badge bg-primary">{{ review.findings.length }}</span> 
-            Total Findings
-          </h4>
+      </div>
+
+      <div class="meta-card">
+        <span class="meta-icon">👤</span>
+        <div class="meta-content">
+          <span class="meta-label">Author</span>
+          <span class="meta-value">{{ review.author }}</span>
+        </div>
+      </div>
+
+      <div class="meta-card">
+        <span class="meta-icon">📅</span>
+        <div class="meta-content">
+          <span class="meta-label">Committed</span>
+          <span class="meta-value">{{ review.commitTimestamp | date:'short' }}</span>
+        </div>
+      </div>
+
+      <div class="meta-card">
+        <span class="meta-icon">🤖</span>
+        <div class="meta-content">
+          <span class="meta-label">Reviewed</span>
+          <span class="meta-value">{{ review.reviewTimestamp | date:'short' }}</span>
         </div>
       </div>
     </div>
 
-    <!-- No Findings -->
-    <div *ngIf="review.findings.length === 0" class="alert alert-success" role="alert">
-      <i class="bi bi-check-circle"></i> No issues found! Code looks great.
+    <div class="findings-section" *ngIf="review.findings.length > 0">
+      <h2>🔍 Findings ({{ review.findings.length }})</h2>
+      
+      <!-- ✅ Use Findings Card Component -->
+      <app-findings-card 
+        *ngFor="let finding of review.findings" 
+        [finding]="finding">
+      </app-findings-card>
     </div>
 
-    <!-- Findings by Category -->
-    <div *ngFor="let entry of getFindingTypeEntries()">
-      <h4 class="mt-4 mb-3">
-        <i class="bi bi-{{ getTypeIcon(entry[0]) }}"></i> 
-        {{ entry[0] }} 
-        <span class="badge bg-secondary">{{ entry[1].length }}</span>
-      </h4>
+    <div class="no-findings" *ngIf="review.findings.length === 0 && review.status === 'COMPLETED'">
+      <div class="success-icon">✅</div>
+      <h2>No Issues Found!</h2>
+      <p>This code review didn't identify any issues. Great work!</p>
+    </div>
 
-      <div class="accordion mb-4" [id]="'accordion-' + entry[0]">
-        <div class="accordion-item" *ngFor="let finding of entry[1]; let i = index">
-          <h2 class="accordion-header" [id]="'heading-' + entry[0] + '-' + i">
-            <button 
-              class="accordion-button collapsed" 
-              type="button" 
-              [attr.data-bs-toggle]="'collapse'" 
-              [attr.data-bs-target]="'#collapse-' + entry[0] + '-' + i"
-              [attr.aria-expanded]="false"
-              [attr.aria-controls]="'collapse-' + entry[0] + '-' + i">
-              
-              <span class="badge me-2" [ngClass]="getSeverityBadgeClass(finding.severity)">
-                {{ finding.severity }}
-              </span>
-              
-              <span class="me-3">
-                <code>{{ finding.fileName }}</code> : {{ finding.lineNumber }}
-              </span>
-              
-              <span class="text-truncate">
-                {{ finding.description }}
-              </span>
-            </button>
-          </h2>
-          <div 
-            [id]="'collapse-' + entry[0] + '-' + i" 
-            class="accordion-collapse collapse"
-            [attr.aria-labelledby]="'heading-' + entry[0] + '-' + i"
-            [attr.data-bs-parent]="'#accordion-' + entry[0]">
-            <div class="accordion-body">
-              <div class="row">
-                <div class="col-md-6">
-                  <h6><i class="bi bi-exclamation-circle"></i> Issue:</h6>
-                  <p>{{ finding.description }}</p>
-                </div>
-                <div class="col-md-6" *ngIf="finding.suggestion">
-                  <h6><i class="bi bi-lightbulb"></i> Suggestion:</h6>
-                  <p class="text-success">{{ finding.suggestion }}</p>
-                </div>
-              </div>
-              <div class="mt-2">
-                <small class="text-muted">
-                  <i class="bi bi-file-earmark-code"></i> {{ finding.fileName }} (Line {{ finding.lineNumber }})
-                </small>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+    <div class="error-state" *ngIf="review.status === 'FAILED'">
+      <div class="error-icon">❌</div>
+      <h2>Review Failed</h2>
+      <p class="error-message">{{ review.errorMessage }}</p>
     </div>
   </div>
 </div>

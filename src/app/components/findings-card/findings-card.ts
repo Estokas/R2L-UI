@@ -1,11 +1,33 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ReviewFinding } from '../../model/code-review';
 
 @Component({
   selector: 'app-findings-card',
-  imports: [],
+  standalone: true,
+  imports: [CommonModule],
   templateUrl: './findings-card.html',
-  styleUrl: './findings-card.css',
+  styleUrls: ['./findings-card.css']
 })
-export class FindingsCard {
+export class FindingsCardComponent {
+  @Input() finding!: ReviewFinding;
 
+  getTypeIcon(type: string): string {
+    const icons: any = {
+      'BUGS': '🐛',
+      'SECURITY': '🔒',
+      'PERFORMANCE': '⚡',
+      'STYLE': '🎨',
+      'REFACTOR': '🔧'
+    };
+    return icons[type] || '📝';
+  }
+
+  getSeverityClass(severity: string): string {
+    return `severity-${severity.toLowerCase()}`;
+  }
+
+  getTypeClass(type: string): string {
+    return `type-${type.toLowerCase()}`;
+  }
 }
