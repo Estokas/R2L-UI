@@ -4,6 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { CodeReviewService } from '../../services/code-review';
 import { CodeReview } from '../../model/code-review';
 import { FindingsCardComponent } from '../findings-card/findings-card'; // ✅ Import
+import { get } from 'https';
 
 @Component({
   selector: 'app-review-detail',
@@ -48,12 +49,10 @@ export class ReviewDetailComponent implements OnInit {
     this.router.navigate(['/']);
   }
 
-  
-
-  getStatusClass(status: string | undefined | null): string {
-    if (!status) {
+  get reviewStatusClass(): string {
+    if (!this.review?.status) {
       return 'status-unknown';
     }
-    return `status-${status.toLowerCase()}`;
+    return `status-${this.review.status.toLowerCase()}`;
   }
 }
