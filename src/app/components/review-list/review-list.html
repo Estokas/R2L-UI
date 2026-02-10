@@ -6,10 +6,12 @@
 
   <app-statistics [reviews]="reviews"></app-statistics>
 
-  <div class="loading" *ngIf="loading">
-    <div class="spinner"></div>
-    <p>Loading reviews...</p>
-  </div>
+  @if (loading) {
+      <div class="loading">
+        <div class="spinner"></div>
+        <p>Loading reviews...</p>
+      </div>
+  }
 
   <div class="error" *ngIf="error">
     <p>❌ {{ error }}</p>
