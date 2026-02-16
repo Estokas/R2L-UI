@@ -1,0 +1,16 @@
+[
+  {
+    "issueType": "NULL_CHECK_MISSING",
+    "suggestedFix": "Add a null guard before accessing the object. If the object is required, fail fast with a clear message.",
+    "explanation": "This prevents NullPointerException and improves debuggability by failing at the boundary.",
+    "risks": ["If upstream callers rely on null behavior, this may change flow."],
+    "confidence": 0.83
+  },
+  {
+    "issueType": "SQL_INJECTION_RISK",
+    "suggestedFix": "Use prepared statements / parameter binding instead of string concatenation.",
+    "explanation": "Parameterized queries prevent attackers from injecting SQL through inputs.",
+    "risks": ["Requires refactor if query is highly dynamic."],
+    "confidence": 0.92
+  }
+]

@@ -1,4 +1,4 @@
-<div class="container">
+﻿<div class="container">
   <button class="back-button" (click)="goBack()">← Back to Reviews</button>
 
   <div class="loading" *ngIf="loading">
@@ -13,69 +13,216 @@
 
   <div class="review-detail" *ngIf="review && !loading && !error">
     <header class="review-header">
-        <div class="header-content">
-            <h1>{{ review.repositoryName }}</h1>
-            <p class="commit-message">{{ review.commitMessage }}</p>
-        </div>
-        <div [ngClass]="reviewStatusClass">
-            {{ review.status }}
-        </div>
+      <div class="header-content">
+        <h1>{{ review.repositoryName }}</h1>
+        <p class="commit-message">{{ review.commitMessage }}</p>
+      </div>
+      <div [ngClass]="reviewStatusClass" class="status-badge">
+        {{ review.status }}
+      </div>
     </header>
 
     <div class="review-meta">
       <div class="meta-card">
-        <span class="meta-icon">🔖</span>
+        <div class="meta-icon">🔗</div>
         <div class="meta-content">
-          <span class="meta-label">Commit SHA</span>
-          <code>{{ review.commitSha.substring(0, 12) }}...</code>
+          <div class="meta-label">Commit SHA</div>
+          <div class="meta-value"><code>{{ review.commitSha | slice:0:8 }}</code></div>
         </div>
       </div>
 
       <div class="meta-card">
-        <span class="meta-icon">👤</span>
+        <div class="meta-icon">👤</div>
         <div class="meta-content">
-          <span class="meta-label">Author</span>
-          <span class="meta-value">{{ review.author }}</span>
+          <div class="meta-label">Author</div>
+          <div class="meta-value">{{ review.author }}</div>
         </div>
       </div>
 
       <div class="meta-card">
-        <span class="meta-icon">📅</span>
+        <div class="meta-icon">📅</div>
         <div class="meta-content">
-          <span class="meta-label">Committed</span>
-          <span class="meta-value">{{ review.commitTimestamp | date:'short' }}</span>
+          <div class="meta-label">Committed</div>
+          <div class="meta-value">{{ review.commitTimestamp | date:'short' }}</div>
         </div>
       </div>
 
       <div class="meta-card">
-        <span class="meta-icon">🤖</span>
+        <div class="meta-icon">✅</div>
         <div class="meta-content">
-          <span class="meta-label">Reviewed</span>
-          <span class="meta-value">{{ review.reviewTimestamp | date:'short' }}</span>
+          <div class="meta-label">Reviewed</div>
+          <div class="meta-value">{{ review.reviewTimestamp | date:'short' }}</div>
+        </div>
+      </div>
+
+      <div class="meta-card">
+        <div class="meta-icon">🔍</div>
+        <div class="meta-content">
+          <div class="meta-label">Findings</div>
+          <div class="meta-value"><strong>{{ review.findings.length }}</strong></div>
+        </div>
+      </div>
+
+      <div class="meta-card" *ngIf="review.findings.length > 0">
+        <div class="meta-icon">🔴</div>
+        <div class="meta-content">
+          <div class="meta-label">Critical/High</div>
+          <div class="meta-value">
+            <strong>{{ criticalFindingsCount }}</strong>
+          </div>
         </div>
       </div>
     </div>
 
-    <div class="findings-section" *ngIf="review.findings.length > 0">
-      <h2>🔍 Findings ({{ review.findings.length }})</h2>
-      
-      <!-- ✅ Use Findings Card Component -->
-      <app-findings-card 
-        *ngFor="let finding of review.findings" 
-        [finding]="finding">
-      </app-findings-card>
-    </div>
+    <div class="review-grid review-grid-full">
+      <!-- LEFT -->
+      <div class="left-col">
+        <div class="findings-section" *ngIf="review.findings.length > 0">
+          <h2>🔍 Findings ({{ review.findings.length }})</h2>
 
-    <div class="no-findings" *ngIf="review.findings.length === 0 && review.status === 'COMPLETED'">
-      <div class="success-icon">✅</div>
-      <h2>No Issues Found!</h2>
-      <p>This code review didn't identify any issues. Great work!</p>
-    </div>
+          <app-findings-card
+            *ngFor="let finding of review.findings"
+            [finding]="finding"
+            (selectFinding)="onSelectFinding($event)">
+          </app-findings-card>
+        </div>
 
-    <div class="error-state" *ngIf="review.status === 'FAILED'">
-      <div class="error-icon">❌</div>
-      <h2>Review Failed</h2>
-      <p class="error-message">{{ review.errorMessage }}</p>
+        <div class="no-findings" *ngIf="review.findings.length === 0 && review.status === 'COMPLETED'">
+          <div class="success-icon">✅</div>
+          <h2>No Issues Found!</h2>
+          <p>This code review didn't identify any issues. Great work!</p>
+        </div>
+
+        <div class="error-state" *ngIf="review.status === 'FAILED'">
+          <div class="error-icon">❌</div>
+          <h2>Review Failed</h2>
+          <p class="error-message">{{ review.errorMessage }}</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Learning Modal -->
+<div class="modal-wrapper" *ngIf="showLearningModal">
+  <div class="modal-backdrop-custom" (click)="closeLearningModal()"></div>
+  <div class="modal-centered" role="dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div>
+          <h5 class="modal-title">🧭 Learning + Validation</h5>
+          <p class="muted" style="margin: 4px 0 0 0; font-size: 0.9em;">
+            Topic: <strong>{{ selectedTopic }}</strong> • Issue: <strong>{{ selectedFinding?.issueType }}</strong>
+          </p>
+        </div>
+        <button type="button" class="btn-close" (click)="closeLearningModal()" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" *ngIf="selectedFinding">
+        <!-- AI Toggle button at top right -->
+        <div class="ai-toggle-fixed">
+          <div class="ai-toggle" *ngIf="selectedFinding">
+            <span class="toggle-label">AI</span>
+            <label class="switch">
+              <input type="checkbox" [checked]="aiEnabled" (change)="toggleAi($any($event.target).checked)">
+              <span class="slider"></span>
+            </label>
+            <span class="mode">{{ aiEnabled ? 'Assist Mode' : 'Learning Mode' }}</span>
+          </div>
+        </div>
+
+        <!-- AI MODE -->
+        <div class="mode-block" *ngIf="aiEnabled">
+              <h4>🤖 AI Suggestion</h4>
+
+              <div *ngIf="aiSuggestion; else aiLoading">
+                <div class="kv">
+                  <div class="k">Suggested fix</div>
+                  <div class="v">{{ aiSuggestion.suggestedFix }}</div>
+                </div>
+
+                <div class="kv">
+                  <div class="k">Explanation</div>
+                  <div class="v">{{ aiSuggestion.explanation }}</div>
+                </div>
+
+                <div class="kv">
+                  <div class="k">Risks</div>
+                  <ul class="v">
+                    <li *ngFor="let r of aiSuggestion.risks">{{ r }}</li>
+                  </ul>
+                </div>
+
+                <div class="kv">
+                  <div class="k">Confidence</div>
+                  <div class="v"><strong>{{ confidencePct }}</strong></div>
+                </div>
+
+                <div class="note">AI is advisory. Developer approves changes.</div>
+              </div>
+
+              <ng-template #aiLoading>
+                <p class="muted">Loading AI suggestion…</p>
+              </ng-template>
+            </div>
+
+            <!-- LEARNING MODE (always visible, default when AI OFF) -->
+            <div class="mode-block">
+              <h4>📘 Learning Guide</h4>
+
+              <div *ngIf="learningModule; else learningMissing">
+                <div class="kv">
+                  <div class="k">Issue definition</div>
+                  <div class="v">{{ learningModule.definition }}</div>
+                </div>
+
+                <div class="kv">
+                  <div class="k">Why it matters</div>
+                  <div class="v">{{ learningModule.whyItMatters }}</div>
+                </div>
+
+                <div class="kv">
+                  <div class="k">Step-by-step fix</div>
+                  <ol class="v">
+                    <li *ngFor="let s of learningModule.steps">{{ s }}</li>
+                  </ol>
+                </div>
+
+                <div class="kv">
+                  <div class="k">Bad vs Good example</div>
+                  <div class="v code">
+                    <strong>Bad</strong>
+                    <pre>{{ learningModule.badExample }}</pre>
+                    <strong>Good</strong>
+                    <pre>{{ learningModule.goodExample }}</pre>
+                  </div>
+                </div>
+
+                <div class="kv">
+                  <div class="k">Checklist</div>
+                  <ul class="v">
+                    <li *ngFor="let c of learningModule.checklist">{{ c }}</li>
+                  </ul>
+                </div>
+
+                <div class="kv">
+                  <div class="k">Related topics</div>
+                  <div class="v tags">
+                    <span class="tag" *ngFor="let t of learningModule.relatedTopics">{{ t }}</span>
+                  </div>
+                </div>
+
+                <div class="note">Apply fix locally → push commit → re-run pipeline.</div>
+              </div>
+
+              <ng-template #learningMissing>
+                <p class="muted">No learning module found for this topic/issueType yet.</p>
+              </ng-template>
+            </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeLearningModal()">Close</button>
+      </div>
     </div>
   </div>
 </div>

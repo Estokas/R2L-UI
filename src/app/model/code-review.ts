@@ -19,6 +19,7 @@ export interface ReviewFinding {
   severity: Severity;
   description: string;
   suggestion?: string;
+  issueType?: string;  // For learning module mapping
 }
 
 export enum ReviewStatus {

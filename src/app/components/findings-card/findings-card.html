@@ -1,4 +1,4 @@
-<div class="finding-card" [ngClass]="getTypeClass(finding.type)">
+<!-- <div class="finding-card" [ngClass]="getTypeClass(finding.type)">
   <div class="finding-header">
     <div class="finding-type">
       <span class="type-icon">{{ getTypeIcon(finding.type) }}</span>
@@ -27,5 +27,21 @@
       <h4>💡 Suggestion:</h4>
       <pre><code>{{ finding.suggestion }}</code></pre>
     </div>
+  </div>
+</div> -->
+
+<div class="finding-card" (click)="handleClick()" tabindex="0" role="button">
+  <div class="finding-top">
+    <span class="sev" [ngClass]="'sev-' + (finding?.severity || 'LOW')">
+      {{ finding?.severity }}
+    </span>
+    <span class="title">{{ finding?.title || finding?.issueType || 'Finding' }}</span>
+  </div>
+
+  <div class="desc">{{ finding?.description }}</div>
+
+  <div class="meta">
+    <span class="path">{{ finding?.filePath }}</span>
+    <span class="type">{{ finding?.issueType }}</span>
   </div>
 </div>

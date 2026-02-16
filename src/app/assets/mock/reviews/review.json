@@ -1,0 +1,42 @@
+[
+  {
+    "topic": "Java",
+    "issueType": "NULL_CHECK_MISSING",
+    "definition": "A possible null value is used without validation, which can cause NullPointerException at runtime.",
+    "whyItMatters": "Null issues can crash production flows and cause unstable behavior. It also increases support cost and breaks SLAs.",
+    "steps": [
+      "Identify the variable that can be null (input, DB result, API response).",
+      "Add validation guard (if-check) before usage.",
+      "Use Optional only when it improves readability; avoid Optional fields in entities.",
+      "Add unit tests for null scenarios."
+    ],
+    "badExample": "String name = user.getName(); // user can be null",
+    "goodExample": "if (user == null) { throw new IllegalArgumentException(\"user is required\"); }\nString name = user.getName();",
+    "checklist": [
+      "Validated inputs",
+      "Handled empty results",
+      "Added tests for null paths"
+    ],
+    "relatedTopics": ["INPUT_VALIDATION", "OPTIONAL_USAGE", "DEFENSIVE_PROGRAMMING"]
+  },
+  {
+    "topic": "SQL",
+    "issueType": "SQL_INJECTION_RISK",
+    "definition": "User input is concatenated into a query string, risking SQL injection.",
+    "whyItMatters": "SQL injection can expose client data and violates security controls.",
+    "steps": [
+      "Replace string concatenation with prepared statements/parameter binding.",
+      "Validate inputs where appropriate.",
+      "Use least privilege DB accounts.",
+      "Add tests for malicious inputs."
+    ],
+    "badExample": "String q = \"SELECT * FROM users WHERE name='\" + name + \"'\";",
+    "goodExample": "PreparedStatement ps = conn.prepareStatement(\"SELECT * FROM users WHERE name=?\");\nps.setString(1, name);",
+    "checklist": [
+      "Used parameters/prepared statements",
+      "No dynamic string concatenation",
+      "Added malicious input test"
+    ],
+    "relatedTopics": ["PREPARED_STATEMENTS", "INPUT_SANITIZATION", "LEAST_PRIVILEGE"]
+  }
+]
