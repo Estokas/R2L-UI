@@ -1,5 +1,5 @@
 export const environment = {
   production: false,
   apiBaseUrl: 'http://localhost:8080/api',
-  githubToken: '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'
+  githubToken: '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'
 };
