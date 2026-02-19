@@ -58,6 +58,7 @@ export class ReviewDetailComponent implements OnInit {
         this.review = enrichedReview;
         this.loading = false;
         console.error('Review data loaded successfully:', enrichedReview);
+        console.error('Review data loaded successfully:', enrichedReview);
       },
       error: (err) => {
         // Fall back to mock data if API fails
