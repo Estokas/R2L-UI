@@ -53,6 +53,7 @@ export class ReviewDetailComponent implements OnInit {
             issueType: f.issueType || this.mapTypeToIssueType(f.type)
           }))
         };
+        console.log('Loaded review data:', enrichedReview);
         this.review = enrichedReview;
         this.loading = false;
       },
