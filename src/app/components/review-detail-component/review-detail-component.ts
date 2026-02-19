@@ -64,6 +64,10 @@ export class ReviewDetailComponent implements OnInit {
 
   private loadMockReview(commitSha: string): void {
     // Create mock findings with issueType that matches learning modules
+    console.log(commitSha);
+    console.log(commitSha);
+    console.log(commitSha)
+    
     const mockReview: CodeReview = {
       id: 1,
       commitSha: commitSha,
