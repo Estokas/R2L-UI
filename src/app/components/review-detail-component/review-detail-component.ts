@@ -40,6 +40,7 @@ export class ReviewDetailComponent implements OnInit {
 
   loadReview(commitSha: string): void {
     console.error('Loading review for commit:', commitSha);
+    console.error('Loading review for commit:', commitSha);
     // Try to load real data from API first
     this.codeReviewService.getReviewByCommitSha(commitSha).subscribe({
       next: (data) => {
