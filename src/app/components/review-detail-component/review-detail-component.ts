@@ -36,6 +36,7 @@ export class ReviewDetailComponent implements OnInit {
   ngOnInit(): void {
     const commitSha = this.route.snapshot.paramMap.get('commitSha');
     if (commitSha) this.loadReview(commitSha);
+    console.error('ReviewDetailComponent initialized with commitSha:', commitSha);
   }
 
   loadReview(commitSha: string): void {
