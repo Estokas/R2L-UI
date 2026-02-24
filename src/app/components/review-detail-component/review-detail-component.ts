@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CodeReviewService } from '../../services/code-review';
@@ -26,8 +26,9 @@ export class ReviewDetailComponent implements OnInit {
   learningModule: LearningModule | null = null;
   aiSuggestion: AiSuggestion | null = null;
 
+  private route = inject(ActivatedRoute)
+
   constructor(
-    private route: ActivatedRoute,
     private router: Router,
     private codeReviewService: CodeReviewService,
     private guidance: AscendGuidanceService
